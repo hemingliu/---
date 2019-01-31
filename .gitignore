@@ -6,8 +6,7 @@
 *.toc
 *.aux
 *.pdf
-*.jpg
-*.png
+
 
 # BlueJ files
 *.ctxt
