@@ -241,8 +241,49 @@ $D_c$的似然是：
 性，即：
 \begin{center}
     \LARGE{
-        $P(c|x)\propto P(c)\prod\limits_{i=1}\limits^dP(x_i|c,pa_i)$
+        $P(c|x)\propto P(c)\prod\limits_{i=1}\limits^dP(x_i|c,pa_i)$\quad(5)
     }
 \end{center}
+其中$pa_i$为属性$x_i$所依赖的属性，称为$x_i$的父属性。此时对每个属性$x_i$,若其父属性$pa_i$已知，则可采用类似式(4)
+的办法来估算概率值$P(x_i|c,pa_i)$。于是，问题的关键就转化为如何确定每个属性的父属性，不同的做法产生不同的独依赖分类
+器。\par
+\subsection{SPODE方法}
+最直接的做法是假设所有属性都依赖于同一个属性，称为“超父”，然后通过交叉验证等模型选择来确定超父属性，由此就形成了SPODE
+方法。下图中，$x_1$就是超父属性。
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.6]{04.jpg}
+\end{figure}
+\subsection{TAN方法}
+TAN（Tree augmented naive Bayes）则是一种基于最大带权生成树（maximum weighted spanning tree）的方法，通过以下四个
+步骤将属性间的依赖关系约简成下图的结构：
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.6]{05.jpg}    
+\end{figure}
+具体步骤如下：\par
+1.计算任意两个属性之间的条件互信息。
+\begin{center}
+    $I(x_i,x_j|y)=\sum\limits_{x_i;x_j;c\in \mathcal Y}P(x_i,x_j|c)log\frac{P(x_i,x_j|c)}{P(x_i|c)P(x_j|c)}$
+\end{center}\par
+2.以属性为节点构建完全图，任意两个节点之间边的权重设为$I(x_i,x_j$\\$|y)$;\par
+3.构建此完全图的最大带权生成树，挑选根变量，将边置为有向；\par
+4.加入类别节点$y$,增加从$y$到每个属性的有向边。\par
+条件互信息$I(x_i,x_j|y)$刻画了属性$x_i,x_j$在已知类别情况下的相关性，因此，通过最大生成树算法，TAN实际上仅保留了强相关
+属性属性之间的依赖性。
+\subsection{AODE}
+AODE是基于集成学习机制，更加强大的独依赖分类器，与SPODE通过模型选择确定超父属性不同，AODE尝试将每个属性做为超父来构建SPODE,
+然后将具有足够数据支撑的SPODE集成起来作为最终结果，即：
+\begin{center}
+    $P(c|x)\propto\sum\limits_{i=1,|D_{x_i}|\geq m^{'}}\limits^dP(c,x_i)\prod\limits_{j=1}\limits^dP(x_j|c,x_i)$
+\end{center}
+其中$D_{x_i}$是在第i个属性上取值为$x_i$的样本的集合，$m^{'}$为阈值常数，AODE需要估计$P(c,x_i)$和$P(x_j|c,x_i)$.类似式4，
+有：
+\begin{align*}
+    \hat{P}(c,x_i)&=\frac{|D_{c,x_i}|+1}{|D|+N_i}\\[2ex]
+    \hat{P}(x_j|c,x_i)&=\frac{|D_{c,x_i,x_j}|+1}{|D_{c,x_i}|+N_j}
+\end{align*}
+其中$N_i$是第i个属性可能的取值数，$D_{c,x_i}$是类别为c且在第i个属性上取值为$x_i$的样本集合，$D_{c,x_i,x_j}$是类别为c且在
+第i和第j个属性上取值分别为$x_i$和$x_j$的样本集合。
 }
 \end{document}
